@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CurrencyExchangeService {
 	
 	@GetMapping("/currency-exchange")
-	ResponseEntity<?> getCurrencyExchange(@RequestParam(defaultValue = "EUR") String from, @RequestParam(defaultValue = "RSD") String to);
+	ResponseEntity<?> getCurrencyExchange(@RequestParam String from, @RequestParam String to);
 
 }
