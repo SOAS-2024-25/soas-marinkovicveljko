@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import api.dtos.BankAccountDto;
 import api.dtos.UserDto;
+import api.proxies.BankAccountProxy;
 import api.services.UsersService;
 
 @RestController
@@ -16,6 +18,9 @@ public class UserServiceImpl implements UsersService {
 	
 	@Autowired
 	private UserRepository repo;
+	
+	@Autowired
+	private BankAccountProxy bankAccountProxy;
 
 	@Override
 	public List<UserDto> getUsers() {
@@ -37,9 +42,16 @@ public class UserServiceImpl implements UsersService {
 		if(repo.findByEmail(dto.getEmail()) == null) {
 			dto.setRole("ADMIN");
 			UserModel model = convertDtoToModel(dto);
-			return ResponseEntity.status(HttpStatus.CREATED).body(repo.save(model));
+			repo.save(model);
+			
+			BankAccountDto bankDto = new BankAccountDto(dto.getEmail(), new ArrayList<>());
+			
+			bankAccountProxy.createAccount(bankDto);
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+			
 		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("Admin with passed email already exists");
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("User with passed email already exist");
 		}
 	}
 
@@ -70,6 +82,26 @@ public class UserServiceImpl implements UsersService {
 	
 	public UserModel convertDtoToModel(UserDto dto) {
 		return new UserModel(dto.getEmail(), dto.getPassword(), dto.getRole());
+	}
+
+	@Override
+	public ResponseEntity<?> deleteUser(String email) {
+	
+		UserModel existing = repo.findByEmail(email);
+		if(existing == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body("User with passed email does not exist");
+		}
+		
+		try {
+			bankAccountProxy.deleteAccount(email);
+		} catch (Exception e) {
+			
+		}
+		
+		repo.deleteByEmail(email);
+		
+		return ResponseEntity.ok("User and his bank account removed: " + email);
 	}
 	
 	
