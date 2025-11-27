@@ -2,6 +2,7 @@ package userService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import api.dtos.BankAccountDto;
+import api.dtos.CryptoWalletDto;
 import api.dtos.UserDto;
 import api.proxies.BankAccountProxy;
+import api.proxies.CryptoWalletProxy;
 import api.services.UsersService;
 
 @RestController
@@ -21,6 +24,9 @@ public class UserServiceImpl implements UsersService {
 	
 	@Autowired
 	private BankAccountProxy bankAccountProxy;
+	
+	@Autowired
+	private CryptoWalletProxy cryptoWalletProxy;
 
 	@Override
 	public List<UserDto> getUsers() {
@@ -43,26 +49,37 @@ public class UserServiceImpl implements UsersService {
 			dto.setRole("ADMIN");
 			UserModel model = convertDtoToModel(dto);
 			repo.save(model);
-			
-			BankAccountDto bankDto = new BankAccountDto(dto.getEmail(), new ArrayList<>());
-			
-			bankAccountProxy.createAccount(bankDto);
-			
 			return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-			
 		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("User with passed email already exist");
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("User with passed email already exist");
 		}
 	}
 
 	@Override
 	public ResponseEntity<?> createUser(UserDto dto) {
 		if(repo.findByEmail(dto.getEmail()) == null) {
+			
 			dto.setRole("USER");
 			UserModel model = convertDtoToModel(dto);
-			return ResponseEntity.status(HttpStatus.CREATED).body(repo.save(model));
+			repo.save(model);
+
+			BankAccountDto bankDto =
+					new BankAccountDto(dto.getEmail(), new ArrayList<>());
+			bankAccountProxy.createAccount(bankDto);
+
+			cryptoWalletProxy.createWallet(
+					new CryptoWalletDto(dto.getEmail(), "BTC", BigDecimal.ZERO));
+			cryptoWalletProxy.createWallet(
+					new CryptoWalletDto(dto.getEmail(), "ETH", BigDecimal.ZERO));
+			cryptoWalletProxy.createWallet(
+					new CryptoWalletDto(dto.getEmail(), "SOL", BigDecimal.ZERO));
+
+			return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+			
 		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("User with passed email already exists");
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("User with passed email already exists");
 		}
 	}
 
@@ -72,7 +89,8 @@ public class UserServiceImpl implements UsersService {
 			repo.updateUser(dto.getEmail(), dto.getPassword(), dto.getRole());
 			return ResponseEntity.status(HttpStatus.OK).body(dto);
 		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("User with passed email doesnt exists");
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("User with passed email doesnt exists");
 		}
 	}
 	
@@ -96,14 +114,16 @@ public class UserServiceImpl implements UsersService {
 		try {
 			bankAccountProxy.deleteAccount(email);
 		} catch (Exception e) {
-			
+		}
+
+		try {
+			cryptoWalletProxy.deleteWallet(email);
+		} catch (Exception e) {
 		}
 		
 		repo.deleteByEmail(email);
 		
-		return ResponseEntity.ok("User and his bank account removed: " + email);
+		return ResponseEntity.ok(
+				"User and his wallets removed: " + email);
 	}
-	
-	
-
 }
