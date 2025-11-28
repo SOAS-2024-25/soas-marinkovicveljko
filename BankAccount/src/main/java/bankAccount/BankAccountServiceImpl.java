@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 
 import api.dtos.BankAccountDto;
 import api.dtos.FiatBalanceDto;
@@ -14,6 +15,7 @@ import api.dtos.UserDto;
 import api.proxies.UsersProxy;
 import api.services.BankAccountService;
 
+@RestController
 public class BankAccountServiceImpl implements BankAccountService {
 
 	@Autowired
