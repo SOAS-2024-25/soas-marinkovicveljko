@@ -85,14 +85,27 @@ public class UserServiceImpl implements UsersService {
 
 	@Override
 	public ResponseEntity<?> updateUser(UserDto dto) {
-		if(repo.findByEmail(dto.getEmail()) != null) {
-			repo.updateUser(dto.getEmail(), dto.getPassword(), dto.getRole());
-			return ResponseEntity.status(HttpStatus.OK).body(dto);
-		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body("User with passed email doesnt exists");
-		}
+
+	    UserModel existing = repo.findByEmail(dto.getEmail());
+	    if (existing == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body("User with passed email does not exist");
+	    }
+
+	    if ("OWNER".equalsIgnoreCase(dto.getRole())) {
+	        long owners = repo.countByRoleIgnoreCase("OWNER");
+	        boolean alreadyOwner = "OWNER".equalsIgnoreCase(existing.getRole());
+
+	        if (owners > 0 && !alreadyOwner) {
+	            return ResponseEntity.status(HttpStatus.CONFLICT)
+	                    .body("Only one OWNER is allowed in the system");
+	        }
+	    }
+
+	    repo.updateUser(dto.getEmail(), dto.getPassword(), dto.getRole());
+	    return ResponseEntity.ok(dto);
 	}
+
 	
 	public UserDto convertModelToDto(UserModel model) {
 		return new UserDto(model.getEmail(), model.getPassword(), model.getRole());
