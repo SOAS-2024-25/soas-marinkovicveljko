@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ApiGatewayAuthentication implements ReactiveUserDetailsService {
 
+	// testiranje gita
     private final WebClient webClient;
 
     @Autowired
