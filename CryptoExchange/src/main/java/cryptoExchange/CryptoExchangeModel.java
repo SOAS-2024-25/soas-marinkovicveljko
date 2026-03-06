@@ -26,16 +26,16 @@ public class CryptoExchangeModel implements Serializable {
 	@Column(name = "currency")
 	private String currency;
 
-	@Column(name = "value")
-	private BigDecimal value;
+	@Column(name = "exchange_value")
+	private BigDecimal exchangeValue;
 
 	public CryptoExchangeModel() {}
 
-	public CryptoExchangeModel(int id, String cryptoSymbol, String currency, BigDecimal value) {
+	public CryptoExchangeModel(int id, String cryptoSymbol, String currency, BigDecimal exchangeValue) {
 		this.id = id;
 		this.cryptoSymbol = cryptoSymbol;
 		this.currency = currency;
-		this.value = value;
+		this.exchangeValue = exchangeValue;
 	}
 
 	public int getId() {
@@ -62,11 +62,11 @@ public class CryptoExchangeModel implements Serializable {
 		this.currency = currency;
 	}
 
-	public BigDecimal getValue() {
-		return value;
+	public BigDecimal getExchangeValue() {
+		return exchangeValue;
 	}
 
-	public void setValue(BigDecimal value) {
-		this.value = value;
+	public void setExchangeValue(BigDecimal exchangeValue) {
+		this.exchangeValue = exchangeValue;
 	}
 }

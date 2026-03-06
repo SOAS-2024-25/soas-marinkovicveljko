@@ -24,7 +24,7 @@ public class CryptoExchangeServiceImpl  implements CryptoExchangeService {
 			CryptoExchangeDto dto = new CryptoExchangeDto(
 					model.getCryptoSymbol(),
 					model.getCurrency(),
-					model.getValue()
+					model.getExchangeValue()
 					);
 			return ResponseEntity.status(HttpStatus.OK).body(dto);
 		} else {

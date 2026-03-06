@@ -9,39 +9,39 @@ import org.springframework.context.annotation.Configuration;
 public class RoutingConfiguration {
 
     @Bean
-    RouteLocator gatewayRouting(RouteLocatorBuilder builder) {
+    public RouteLocator gatewayRouting(RouteLocatorBuilder builder) {
 
         return builder.routes()
 
-                .route(p -> p.path("/bank-account/**")
-                        .uri("lb://bank-account"))
-
-                .route(p -> p.path("/crypto-exchange/**")
-                        .uri("lb://crypto-exchange"))
-
-                .route(p -> p.path("/crypto-wallet/**")
-                        .uri("lb://crypto-wallet"))
-
-                .route(p -> p.path("/currency-exchange/**")
-                        .uri("lb://currency-exchange"))
-
-                .route(p -> p.path("/currency-conversion/**")
-                        .uri("lb://currency-conversion"))
-
-                .route(p -> p.path("/currency-conversion-feign/**")
-                        .uri("lb://currency-conversion"))
-
-                .route(p -> p.path("/users/**")
+                // ===== ACTUATOR RUTE =====
+                .route("users-actuator", r -> r
+                        .path("/users/actuator/**")
                         .uri("lb://users-service"))
 
-                .route(p -> p.path("/trade/**")
-                        .uri("lb://trade-service"))
+                // ===== API RUTE =====
+                .route(r -> r.path("/users/**")
+                        .uri("lb://users-service"))
 
-                .route(p -> p.path("/util/**")
-                        .uri("lb://util"))
+                .route(r -> r.path("/bank-account/**")
+                        .uri("lb://bank-account"))
 
-                .route(p -> p.path("/crypto-conversion/**")
+                .route(r -> r.path("/crypto-exchange/**")
+                        .uri("lb://crypto-exchange"))
+
+                .route(r -> r.path("/crypto-wallet/**")
+                        .uri("lb://crypto-wallet"))
+
+                .route(r -> r.path("/currency-exchange/**")
+                        .uri("lb://currency-exchange"))
+
+                .route(r -> r.path("/currency-conversion/**")
+                        .uri("lb://currency-conversion"))
+
+                .route(r -> r.path("/crypto-conversion/**")
                         .uri("lb://crypto-conversion"))
+
+                .route(r -> r.path("/trade/**")
+                        .uri("lb://trade-service"))
 
                 .build();
     }

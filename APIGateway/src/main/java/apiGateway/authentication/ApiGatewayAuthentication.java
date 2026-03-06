@@ -21,7 +21,9 @@ public class ApiGatewayAuthentication implements ReactiveUserDetailsService {
 
     @Autowired
     public ApiGatewayAuthentication(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://users-service:8770").build();
+        this.webClient = builder
+                .baseUrl("lb://USERS-SERVICE")
+                .build();
     }
 
     @Bean
@@ -41,7 +43,6 @@ public class ApiGatewayAuthentication implements ReactiveUserDetailsService {
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .map(dto -> User.withUsername(dto.getEmail())
-                        // KRITIČNO: NOOP – bez re-encode
                         .password("{noop}" + dto.getPassword())
                         .roles(dto.getRole())
                         .build());

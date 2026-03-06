@@ -1,4 +1,4 @@
-INSERT INTO crypto_exchange (id, crypto_symbol, currency, value) VALUES
+INSERT INTO crypto_exchange (id, crypto_symbol, currency, exchange_value) VALUES
 (1, 'BTC', 'EUR', 65000.00),
 (2, 'BTC', 'USD', 70000.00),
 (3, 'ETH', 'EUR', 3500.00),
