@@ -10,7 +10,6 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 @Configuration
 public class SecurityConfig {
 
-    // 🔓 ACTUATOR – BEZ AUTH
     @Bean
     @Order(1)
     public SecurityWebFilterChain actuatorSecurity(ServerHttpSecurity http) {
@@ -27,7 +26,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // 🔐 SVE OSTALO – BASIC AUTH
     @Bean
     @Order(2)
     public SecurityWebFilterChain apiSecurity(ServerHttpSecurity http) {
@@ -38,6 +36,25 @@ public class SecurityConfig {
                 .authorizeExchange(ex -> ex
                         .pathMatchers("/users/**")
                         .hasAnyRole("ADMIN", "OWNER")
+                        .pathMatchers(
+                                "/currency-conversion",
+                                "/currency-conversion/**",
+                                "/crypto-conversion",
+                                "/crypto-conversion/**",
+                                "/trade",
+                                "/trade/**"
+                        )
+                        .hasRole("USER")
+                        .pathMatchers(
+                                "/currency-exchange/**",
+                                "/crypto-exchange/**"
+                        )
+                        .hasAnyRole("OWNER", "ADMIN", "USER")
+                        .pathMatchers(
+                                "/bank-account/**",
+                                "/crypto-wallets/**"
+                        )
+                        .hasAnyRole("ADMIN", "USER")
                         .anyExchange()
                         .authenticated()
                 )

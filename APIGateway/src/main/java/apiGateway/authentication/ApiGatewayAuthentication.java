@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ApiGatewayAuthentication implements ReactiveUserDetailsService {
 
-	// testiranje gita
+	
     private final WebClient webClient;
 
     @Autowired
@@ -37,7 +37,7 @@ public class ApiGatewayAuthentication implements ReactiveUserDetailsService {
 
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/users/by-email")
+                        .path("/users/email")
                         .queryParam("email", username)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)

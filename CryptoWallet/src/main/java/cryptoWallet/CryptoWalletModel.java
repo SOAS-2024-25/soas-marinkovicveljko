@@ -26,7 +26,7 @@ public class CryptoWalletModel implements Serializable {
 	@Column(name = "crypto_symbol")
 	private String cryptoSymbol;
 	
-	@Column(name = "balance")
+	@Column(name = "balance", precision=19, scale=8)
 	private BigDecimal balance;
 	
 	public CryptoWalletModel() {

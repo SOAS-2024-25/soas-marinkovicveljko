@@ -5,9 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import api.dtos.CryptoExchangeDto;
+
 @FeignClient("crypto-exchange")
 public interface CryptoExchangeProxy {
 
 	@GetMapping("/crypto-exchange/value")
-	ResponseEntity<?> getCryptoValue(@RequestParam("crypto") String cryptoSymbol, @RequestParam("currency") String currency);
+	ResponseEntity<CryptoExchangeDto> getCryptoValue(@RequestParam("crypto") String cryptoSymbol, @RequestParam("currency") String currency);
 }

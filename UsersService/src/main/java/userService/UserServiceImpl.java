@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import api.dtos.BankAccountDto;
 import api.dtos.CryptoWalletDto;
+import api.dtos.FiatBalanceDto;
 import api.dtos.UserDto;
 import api.proxies.BankAccountProxy;
 import api.proxies.CryptoWalletProxy;
@@ -40,7 +41,11 @@ public class UserServiceImpl implements UsersService {
 
 	@Override
 	public UserDto getUserByEmail(String email) {
-		return convertModelToDto(repo.findByEmail(email));
+	    UserModel model = repo.findByEmail(email);
+	    if (model == null) {
+	        return null;
+	    }
+	    return convertModelToDto(model);
 	}
 
 	@Override
@@ -58,29 +63,72 @@ public class UserServiceImpl implements UsersService {
 
 	@Override
 	public ResponseEntity<?> createUser(UserDto dto) {
-		if(repo.findByEmail(dto.getEmail()) == null) {
-			
-			dto.setRole("USER");
-			UserModel model = convertDtoToModel(dto);
-			repo.save(model);
+	    if (repo.findByEmail(dto.getEmail()) != null) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body("User with passed email already exists");
+	    }
 
-			BankAccountDto bankDto =
-					new BankAccountDto(dto.getEmail(), new ArrayList<>());
-			bankAccountProxy.createAccount(bankDto);
+	    dto.setRole("USER");
+	    UserModel model = convertDtoToModel(dto);
+	    repo.save(model);
 
-			cryptoWalletProxy.createWallet(
-					new CryptoWalletDto(dto.getEmail(), "BTC", BigDecimal.ZERO));
-			cryptoWalletProxy.createWallet(
-					new CryptoWalletDto(dto.getEmail(), "ETH", BigDecimal.ZERO));
-			cryptoWalletProxy.createWallet(
-					new CryptoWalletDto(dto.getEmail(), "SOL", BigDecimal.ZERO));
+	    try {
+	        List<FiatBalanceDto> balances = new ArrayList<>();
+	        balances.add(new FiatBalanceDto("EUR", BigDecimal.ZERO));
+	        balances.add(new FiatBalanceDto("USD", BigDecimal.ZERO));
+	        balances.add(new FiatBalanceDto("GBP", BigDecimal.ZERO));
+	        balances.add(new FiatBalanceDto("CHF", BigDecimal.ZERO));
+	        balances.add(new FiatBalanceDto("RSD", BigDecimal.ZERO));
 
-			return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-			
-		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body("User with passed email already exists");
-		}
+	        BankAccountDto bankDto = new BankAccountDto(dto.getEmail(), balances);
+	        ResponseEntity<?> bankResponse = bankAccountProxy.createAccount(bankDto);
+
+	        if (!bankResponse.getStatusCode().is2xxSuccessful()) {
+	            repo.deleteByEmail(dto.getEmail());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body("User created, but bank account creation failed");
+	        }
+
+	        ResponseEntity<?> btcResponse =
+	                cryptoWalletProxy.createWallet(new CryptoWalletDto(dto.getEmail(), "BTC", BigDecimal.ZERO));
+	        ResponseEntity<?> ethResponse =
+	                cryptoWalletProxy.createWallet(new CryptoWalletDto(dto.getEmail(), "ETH", BigDecimal.ZERO));
+	        ResponseEntity<?> solResponse =
+	                cryptoWalletProxy.createWallet(new CryptoWalletDto(dto.getEmail(), "SOL", BigDecimal.ZERO));
+
+	        if (!btcResponse.getStatusCode().is2xxSuccessful()
+	                || !ethResponse.getStatusCode().is2xxSuccessful()
+	                || !solResponse.getStatusCode().is2xxSuccessful()) {
+
+	            try {
+	                bankAccountProxy.deleteAccount(dto.getEmail());
+	            } catch (Exception e) {
+	            }
+
+	            repo.deleteByEmail(dto.getEmail());
+
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body("User created, but crypto wallet creation failed");
+	        }
+
+	        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+
+	    } catch (Exception e) {
+	        try {
+	            bankAccountProxy.deleteAccount(dto.getEmail());
+	        } catch (Exception ex) {
+	        }
+
+	        try {
+	            cryptoWalletProxy.deleteWallet(dto.getEmail());
+	        } catch (Exception ex) {
+	        }
+
+	        repo.deleteByEmail(dto.getEmail());
+
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("User creation failed during automatic account/wallet provisioning: " + e.getMessage());
+	    }
 	}
 
 	@Override
@@ -108,7 +156,10 @@ public class UserServiceImpl implements UsersService {
 
 	
 	public UserDto convertModelToDto(UserModel model) {
-		return new UserDto(model.getEmail(), model.getPassword(), model.getRole());
+	    if (model == null) {
+	        return null;
+	    }
+	    return new UserDto(model.getEmail(), model.getPassword(), model.getRole());
 	}
 	
 	public UserModel convertDtoToModel(UserDto dto) {

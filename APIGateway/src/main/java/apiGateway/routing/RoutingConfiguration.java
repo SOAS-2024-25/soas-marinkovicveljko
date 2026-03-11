@@ -22,13 +22,13 @@ public class RoutingConfiguration {
                 .route(r -> r.path("/users/**")
                         .uri("lb://users-service"))
 
-                .route(r -> r.path("/bank-account/**")
+                .route(r -> r.path("/bank-accounts/**")
                         .uri("lb://bank-account"))
 
                 .route(r -> r.path("/crypto-exchange/**")
                         .uri("lb://crypto-exchange"))
 
-                .route(r -> r.path("/crypto-wallet/**")
+                .route(r -> r.path("/crypto-wallets/**")
                         .uri("lb://crypto-wallet"))
 
                 .route(r -> r.path("/currency-exchange/**")
@@ -42,6 +42,9 @@ public class RoutingConfiguration {
 
                 .route(r -> r.path("/trade/**")
                         .uri("lb://trade-service"))
+                
+                .route(r -> r.path("/currency-conversion-feign/**")
+                		.uri("lb://currency-conversion"))
 
                 .build();
     }
