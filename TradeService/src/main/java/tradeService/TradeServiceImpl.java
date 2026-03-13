@@ -80,7 +80,11 @@ public class TradeServiceImpl implements TradeService {
 			cryptoWalletProxy.createWallet(wallet);
 		} else {
 			wallet.setBalance(wallet.getBalance().add(dto.getAmount()));
-			cryptoWalletProxy.updateWallet(wallet);
+			cryptoWalletProxy.updateWallet(
+					wallet.getEmail(),
+					wallet.getCryptoSymbol(),
+					wallet
+			);
 		}
 
 		return ResponseEntity.ok("Crypto bought successfully");
@@ -119,7 +123,11 @@ public class TradeServiceImpl implements TradeService {
 		BigDecimal totalValue = crypto.getValue().multiply(dto.getAmount());
 
 		wallet.setBalance(wallet.getBalance().subtract(dto.getAmount()));
-		cryptoWalletProxy.updateWallet(wallet);
+		cryptoWalletProxy.updateWallet(
+				wallet.getEmail(),
+				wallet.getCryptoSymbol(),
+				wallet
+		);
 
 		BankAccountDto bank = bankAccountProxy.getAccountByEmail(dto.getEmail());
 		increaseFiat(bank, dto.getCurrency(), totalValue);

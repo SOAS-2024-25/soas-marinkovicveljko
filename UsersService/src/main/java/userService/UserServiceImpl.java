@@ -132,9 +132,9 @@ public class UserServiceImpl implements UsersService {
 	}
 
 	@Override
-	public ResponseEntity<?> updateUser(UserDto dto) {
+	public ResponseEntity<?> updateUser(String email, UserDto dto) {
 
-	    UserModel existing = repo.findByEmail(dto.getEmail());
+	    UserModel existing = repo.findByEmail(email);
 	    if (existing == null) {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
 	                .body("User with passed email does not exist");
@@ -150,8 +150,10 @@ public class UserServiceImpl implements UsersService {
 	        }
 	    }
 
-	    repo.updateUser(dto.getEmail(), dto.getPassword(), dto.getRole());
-	    return ResponseEntity.ok(dto);
+	    repo.updateUser(email, dto.getPassword(), dto.getRole());
+
+	    UserDto responseDto = new UserDto(email, dto.getPassword(), dto.getRole());
+	    return ResponseEntity.ok(responseDto);
 	}
 
 	

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,8 +27,8 @@ public interface UsersService {
 	@PostMapping("/users/newUser")
 	ResponseEntity<?> createUser(@RequestBody UserDto dto);
 	
-	@PutMapping("/users")
-	ResponseEntity<?> updateUser(@RequestBody UserDto dto);
+	@PutMapping("/users/email/{email}")
+	ResponseEntity<?> updateUser(@PathVariable String email, @RequestBody UserDto dto);
 	
 	@DeleteMapping("/users/email")
 	ResponseEntity<?> deleteUser(@RequestParam String email);

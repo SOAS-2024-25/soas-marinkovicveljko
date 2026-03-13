@@ -66,7 +66,6 @@ public class CryptoConversionServiceImpl implements CryptoConversionService {
 					.body("Insufficient crypto balance");
 		}
 
-		
 		CryptoExchangeDto rateFrom = (CryptoExchangeDto) exchangeProxy.getCryptoValue(fromSymbol, "EUR").getBody();
 		CryptoExchangeDto rateTo = (CryptoExchangeDto) exchangeProxy.getCryptoValue(toSymbol, "EUR").getBody();
 
@@ -75,20 +74,26 @@ public class CryptoConversionServiceImpl implements CryptoConversionService {
 					.body("Exchange rate not available");
 		}
 
-	
 		BigDecimal eurValue = rateFrom.getValue().multiply(amount);
 		BigDecimal acquired = eurValue.divide(rateTo.getValue(), 8, BigDecimal.ROUND_HALF_UP);
 
-
 		fromWallet.setBalance(fromWallet.getBalance().subtract(amount));
-		walletProxy.updateWallet(fromWallet);
+		walletProxy.updateWallet(
+				fromWallet.getEmail(),
+				fromWallet.getCryptoSymbol(),
+				fromWallet
+		);
 
 		if (toWallet == null) {
 			toWallet = new CryptoWalletDto(email, toSymbol, acquired);
 			walletProxy.createWallet(toWallet);
 		} else {
 			toWallet.setBalance(toWallet.getBalance().add(acquired));
-			walletProxy.updateWallet(toWallet);
+			walletProxy.updateWallet(
+					toWallet.getEmail(),
+					toWallet.getCryptoSymbol(),
+					toWallet
+			);
 		}
 
 		return ResponseEntity.ok("Crypto successfully converted");

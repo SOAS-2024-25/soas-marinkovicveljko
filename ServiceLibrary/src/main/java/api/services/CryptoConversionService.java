@@ -14,5 +14,4 @@ public interface CryptoConversionService {
 			@RequestParam("fromSymbol") String fromSymbol,
 			@RequestParam("toSymbol") String toSymbol,
 			@RequestParam("amount") BigDecimal amount);
-
 }

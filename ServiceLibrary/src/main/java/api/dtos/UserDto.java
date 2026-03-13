@@ -7,6 +7,10 @@ public class UserDto {
 	private String password;
 	private String role;
 	
+	public UserDto() {
+		
+	}
+	
 	
 	public UserDto(String email, String password, String role) {
 		super();

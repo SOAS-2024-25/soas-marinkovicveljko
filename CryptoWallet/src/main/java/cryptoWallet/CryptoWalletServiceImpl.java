@@ -51,15 +51,16 @@ public class CryptoWalletServiceImpl implements CryptoWalletService {
 	}
 
 	@Override
-	public ResponseEntity<?> updateWallet(CryptoWalletDto dto) {
-		CryptoWalletModel model = repo.findByEmailAndCryptoSymbol(dto.getEmail(), dto.getCryptoSymbol());
-		if(model != null) {
-			model.setBalance(dto.getBalance());
-			return ResponseEntity.status(HttpStatus.OK).body(repo.save(model));	
-		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body("Wallet for given email and currency does not exist");
-		}
+	public ResponseEntity<?> updateWallet(String email, String cryptoSymbol, CryptoWalletDto dto) {
+	    CryptoWalletModel model = repo.findByEmailAndCryptoSymbol(email, cryptoSymbol);
+
+	    if (model != null) {
+	        model.setBalance(dto.getBalance());
+	        return ResponseEntity.status(HttpStatus.OK).body(repo.save(model));
+	    } else {
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body("Wallet for given email and currency does not exist");
+	    }
 	}
 
 	@Override
