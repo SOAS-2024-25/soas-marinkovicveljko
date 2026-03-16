@@ -45,5 +45,23 @@ public class GlobalExceptionHandler {
 						"You can exchange up to 300 currencies", HttpStatus.BAD_REQUEST));
 	}
 	
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+	    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	            .body(new ExceptionModel(
+	                    ex.getMessage(),
+	                    "Operation is not allowed",
+	                    HttpStatus.FORBIDDEN));
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<?> handleGenericException(Exception ex) {
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	            .body(new ExceptionModel(
+	                    "Unexpected error occurred",
+	                    "Please check request data",
+	                    HttpStatus.INTERNAL_SERVER_ERROR));
+	}
+	
 }
 

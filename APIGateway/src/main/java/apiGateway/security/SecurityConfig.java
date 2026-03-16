@@ -51,7 +51,7 @@ public class SecurityConfig {
                         )
                         .hasAnyRole("OWNER", "ADMIN", "USER")
                         .pathMatchers(
-                                "/bank-account/**",
+                                "/bank-accounts/**",
                                 "/crypto-wallets/**"
                         )
                         .hasAnyRole("ADMIN", "USER")
