@@ -3,6 +3,7 @@ package apiGateway.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -34,27 +35,76 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(basic -> {})
                 .authorizeExchange(ex -> ex
-                        .pathMatchers("/users/**")
-                        .hasAnyRole("ADMIN", "OWNER")
-                        .pathMatchers(
-                                "/currency-conversion",
-                                "/currency-conversion/**",
-                                "/crypto-conversion",
-                                "/crypto-conversion/**",
-                                "/trade",
-                                "/trade/**"
-                        )
-                        .hasRole("USER")
-                        .pathMatchers(
-                                "/currency-exchange/**",
-                                "/crypto-exchange/**"
-                        )
+
+                        .pathMatchers(HttpMethod.GET, "/users")
+                        .hasAnyRole("OWNER", "ADMIN")
+
+                        .pathMatchers(HttpMethod.GET, "/users/email")
+                        .hasAnyRole("OWNER", "ADMIN")
+
+                        .pathMatchers(HttpMethod.POST, "/users/newAdmin")
+                        .hasRole("OWNER")
+
+                        .pathMatchers(HttpMethod.POST, "/users/newUser")
+                        .hasAnyRole("OWNER", "ADMIN")
+
+                        .pathMatchers(HttpMethod.PUT, "/users/email/**")
+                        .hasAnyRole("OWNER", "ADMIN")
+
+                        .pathMatchers(HttpMethod.DELETE, "/users/email")
+                        .hasRole("OWNER")
+
+                        .pathMatchers(HttpMethod.GET, "/currency-exchange/**")
                         .hasAnyRole("OWNER", "ADMIN", "USER")
-                        .pathMatchers(
-                                "/bank-accounts/**",
-                                "/crypto-wallets/**"
-                        )
+
+                        .pathMatchers(HttpMethod.GET, "/crypto-exchange/**")
+                        .hasAnyRole("OWNER", "ADMIN", "USER")
+
+                        .pathMatchers(HttpMethod.GET, "/currency-conversion")
+                        .hasRole("USER")
+
+                        .pathMatchers(HttpMethod.GET, "/currency-conversion-feign")
+                        .hasRole("USER")
+
+                        .pathMatchers(HttpMethod.POST, "/trade/buy")
+                        .hasRole("USER")
+
+                        .pathMatchers(HttpMethod.POST, "/trade/sell")
+                        .hasRole("USER")
+
+                        .pathMatchers(HttpMethod.POST, "/crypto-conversion/convert")
+                        .hasRole("USER")
+
+                        .pathMatchers(HttpMethod.GET, "/crypto-wallets")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.GET, "/crypto-wallets/email")
                         .hasAnyRole("ADMIN", "USER")
+
+                        .pathMatchers(HttpMethod.POST, "/crypto-wallets")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.PUT, "/crypto-wallets/**")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.DELETE, "/crypto-wallets/email")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.GET, "/bank-accounts")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.GET, "/bank-accounts/email")
+                        .hasAnyRole("ADMIN", "USER")
+
+                        .pathMatchers(HttpMethod.POST, "/bank-accounts")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.PUT, "/bank-accounts")
+                        .hasRole("ADMIN")
+
+                        .pathMatchers(HttpMethod.DELETE, "/bank-accounts/email")
+                        .hasRole("ADMIN")
+
                         .anyExchange()
                         .authenticated()
                 )
