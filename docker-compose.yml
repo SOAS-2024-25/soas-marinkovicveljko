@@ -1,0 +1,92 @@
+version: "3.8"
+
+services:
+  naming-server:
+    build: ./NamingServer
+    container_name: naming-server
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    build: ./APIGateway
+    container_name: api-gateway
+    ports:
+      - "8765:8765"
+    depends_on:
+      - naming-server
+
+  users-service:
+    build: ./UsersService
+    container_name: users-service
+    ports:
+      - "8770:8770"
+    depends_on:
+      - naming-server
+
+  bank-account:
+    build: ./BankAccount
+    container_name: bank-account
+    ports:
+      - "8200:8200"
+    depends_on:
+      - naming-server
+      - users-service
+
+  crypto-wallet:
+    build: ./CryptoWallet
+    container_name: crypto-wallet
+    ports:
+      - "8300:8300"
+    depends_on:
+      - naming-server
+      - users-service
+
+  currency-exchange:
+    build: ./CurrencyExchange
+    container_name: currency-exchange
+    ports:
+      - "8000:8000"
+    depends_on:
+      - naming-server
+
+  currency-conversion:
+    build: ./CurrencyConversion
+    container_name: currency-conversion
+    ports:
+      - "8100:8100"
+    depends_on:
+      - naming-server
+      - currency-exchange
+      - bank-account
+
+  crypto-exchange:
+    build: ./CryptoExchange
+    container_name: crypto-exchange
+    ports:
+      - "8400:8400"
+    depends_on:
+      - naming-server
+
+  crypto-conversion:
+    build: ./CryptoConversion
+    container_name: crypto-conversion
+    ports:
+      - "8500:8500"
+    depends_on:
+      - naming-server
+      - crypto-wallet
+      - crypto-exchange
+      - users-service
+
+  trade-service:
+    build: ./TradeService
+    container_name: trade-service
+    ports:
+      - "8600:8600"
+    depends_on:
+      - naming-server
+      - bank-account
+      - crypto-wallet
+      - crypto-exchange
+      - currency-conversion
+      - users-service

@@ -89,10 +89,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <!-- da ti ne podvlači tests folder -->
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>
